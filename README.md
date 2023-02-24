@@ -1,5 +1,5 @@
-# Prediction-COVID-19
-Predicting the number of COVID-19 infections
+# Prediction-COVID-19 (2023-02-22 ~ ing)
+Predicting the number of COVID-19 infections.
 
 ## Description
 - We predict the number of COVID-19 infections in each of 17 cities in South Korea. <br>
