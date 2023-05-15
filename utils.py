@@ -17,18 +17,16 @@ class Load_files:
     def __init__(self, path):
         self.path = path
     
-    def load_files(self, path):
+    def load_files(path):
     
         names = glob.glob(path)
-        file_list = []
-        name_list = []
-        for i, name in enumerate(names):
-            assert len(name) == 31
-            name_list.append([name[17:19]])
+        dic_files = {}
+        for name in names:
+            city = name[-14:-12]
             sub = pd.read_csv(name)
-            file_list.append(sub)
-        
-        return file_list, name_list
+            dic_files[city] = sub
+
+        return dic_files
 
 class Prepare_df:
 
