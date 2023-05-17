@@ -14,15 +14,15 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 class Load_files:
 
-    def __init__(self, path):
+    def __init__(self, path, name_start, name_end):
         self.path = path
     
-    def load_files(path):
+    def load_files(path, name_start, name_end):
     
         names = glob.glob(path)
         dic_files = {}
         for name in names:
-            city = name[-14:-12]
+            city = name[name_start:name_end]
             sub = pd.read_csv(name)
             dic_files[city] = sub
 
