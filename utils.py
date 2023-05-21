@@ -29,16 +29,11 @@ class Load_files:
         return dic_files
 
 class Prepare_df:
-
-    def __init__(self, file):
-        self.file = file
-        self.df = df
         
-    def processing(self, data):
-
-        df = data.loc[:, ['stdDay', 'defCnt']]
-        df.rename(columns = {'stdDay':'Date', 'defCnt':'ACC'}, inplace = True)
-        df['AC'] = df['ACC'] - df['ACC'].shift(1)
+    def processing(data, variable1, variable2):
+    
+        df = data.loc[:, [variable1, variable2]]
+        df.rename(columns = {variable1:'Date', variable2:'AC'}, inplace = True)
         df['DAC'] = df['AC'] - df['AC'].shift(1)
         df['DDAC'] = df['DAC'] - df['DAC'].shift(1)
         df['Date'] = pd.to_datetime(df['Date'])
@@ -48,8 +43,8 @@ class Prepare_df:
     
         return df
 
-    def scailing(self, x, y):
-
+    def scailing(x, y):
+        
         ms = MinMaxScaler()
         ss = StandardScaler()
 
@@ -58,7 +53,7 @@ class Prepare_df:
 
         return x_ss, y_ms
         
-    def window_sliding(self, df, x, y, iw, ow):
+    def window_sliding(df, x, y, iw, ow):
     
         x_ws, y_ws = list(), list()
         for i in range(len(df)):

@@ -20,10 +20,8 @@ from model import *
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 class Train:
-    def __init__(self):
-    
-    
-    def Trainer(self, model, train_loader, test_laoder):
+
+    def Trainer(model, train_loader, test_laoder):
     
         input_size = x_ss.size(2)
         num_layers = 1
@@ -80,4 +78,5 @@ class Train:
         
         path_model = f'model/{model}.pth'
         Save_and_Load.save_and_load(learned_model, path_model)
+
 
