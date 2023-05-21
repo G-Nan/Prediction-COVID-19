@@ -13,9 +13,10 @@ class RNN(nn.Module):
                           num_layers, 
                           batch_first = True, 
                           bidirectional = False, 
-                          dropout = 0.3)
-        self.fc1 = nn.Linear(hidden_size * sequence_length, 64)
-        self.fc2 = nn.Linear(64, 1)
+                          dropout = dropout)
+        self.fc1 = nn.Linear(hidden_size * sequence_length, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 1)
         self.relu = nn.ReLU()
 
     def forward(self, x):
@@ -25,6 +26,8 @@ class RNN(nn.Module):
         out = self.fc1(out)
         out = self.relu(out)
         out = self.fc2(out)
+        out = self.relu(out)
+        out = self.fc3(out)
         out = torch.flatten(out)
         return out
 
@@ -38,9 +41,10 @@ class LSTM(nn.Module):
                             hidden_size, num_layers, 
                             batch_first = True, 
                             bidirectional = False, 
-                            dropout = 0.3)
-        self.fc1 = nn.Linear(hidden_size * sequence_length, 64)
-        self.fc2 = nn.Linear(64, 1)
+                            dropout = dropout)
+        self.fc1 = nn.Linear(hidden_size * sequence_length, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 1)
         self.relu = nn.ReLU()
 
     def forward(self, x):
@@ -51,6 +55,8 @@ class LSTM(nn.Module):
         out = self.fc1(out)
         out = self.relu(out)
         out = self.fc2(out)
+        out = self.relu(out)
+        out = self.fc3(out)
         out = torch.flatten(out)
         return out
 
@@ -65,9 +71,10 @@ class GRU(nn.Module):
                           num_layers, 
                           batch_first = True, 
                           bidirectional = False, 
-                          dropout = 0.3)
-        self.fc1 = nn.Linear(hidden_size * sequence_length, 64)
-        self.fc2 = nn.Linear(64, 1)
+                          dropout = dropout)
+        self.fc1 = nn.Linear(hidden_size * sequence_length, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 1)
         self.relu = nn.ReLU()
 
     def forward(self, x):
@@ -77,12 +84,14 @@ class GRU(nn.Module):
         out = self.fc1(out)
         out = self.relu(out)
         out = self.fc2(out)
+        out = self.relu(out)
+        out = self.fc3(out)
         out = torch.flatten(out)
         return out
 
-class BIRNN(nn.Module):
+class BiRNN(nn.Module):
     def __init__(self, input_size, hidden_size, sequence_length, num_layers, dropout, device):
-        super(RNN, self).__init__()
+        super(BiRNN, self).__init__()
         self.device = device
         self.hidden_size = hidden_size
         self.num_layers = num_layers
@@ -91,9 +100,11 @@ class BIRNN(nn.Module):
                           num_layers, 
                           batch_first = True, 
                           bidirectional = True, 
-                          dropout = 0.3)
-        self.fc1 = nn.Linear(hidden_size * sequence_length * 2, 64)
-        self.fc2 = nn.Linear(64, 1)
+                          dropout = dropout)
+        self.fc1 = nn.Linear(hidden_size * sequence_length * 2, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.fc4 = nn.Linear(64, 1)
         self.relu = nn.ReLU()
 
     def forward(self, x):
@@ -103,12 +114,16 @@ class BIRNN(nn.Module):
         out = self.fc1(out)
         out = self.relu(out)
         out = self.fc2(out)
+        out = self.relu(out)
+        out = self.fc3(out)
+        out = self.relu(out)
+        out = self.fc4(out)
         out = torch.flatten(out)
         return out
 
-class BILSTM(nn.Module):
+class BiLSTM(nn.Module):
     def __init__(self, input_size, hidden_size, sequence_length, num_layers, dropout, device):
-        super(LSTM, self).__init__()
+        super(BiLSTM, self).__init__()
         self.device = device
         self.hidden_size = hidden_size
         self.num_layers = num_layers
@@ -116,9 +131,11 @@ class BILSTM(nn.Module):
                             hidden_size, num_layers, 
                             batch_first = True, 
                             bidirectional = True, 
-                            dropout = 0.3)
-        self.fc1 = nn.Linear(hidden_size * sequence_length, 64)
-        self.fc2 = nn.Linear(64, 1)
+                            dropout = dropout)
+        self.fc1 = nn.Linear(hidden_size * sequence_length, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.fc4 = nn.Linear(64, 1)
         self.relu = nn.ReLU()
 
     def forward(self, x):
@@ -129,12 +146,16 @@ class BILSTM(nn.Module):
         out = self.fc1(out)
         out = self.relu(out)
         out = self.fc2(out)
+        out = self.relu(out)
+        out = self.fc3(out)
+        out = self.relu(out)
+        out = self.fc4(out)
         out = torch.flatten(out)
         return out
 
-class BIGRU(nn.Module):
+class BiGRU(nn.Module):
     def __init__(self, input_size, hidden_size, sequence_length, num_layers, dropout, device):
-        super(GRU, self).__init__()
+        super(BiGRU, self).__init__()
         self.device = device
         self.hidden_size = hidden_size
         self.num_layers = num_layers
@@ -143,9 +164,11 @@ class BIGRU(nn.Module):
                           num_layers, 
                           batch_first = True, 
                           bidirectional = True, 
-                          dropout = 0.3)
-        self.fc1 = nn.Linear(hidden_size * sequence_length * 2, 64)
-        self.fc2 = nn.Linear(64, 1)
+                          dropout = dropout)
+        self.fc1 = nn.Linear(hidden_size * sequence_length * 2, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.fc4 = nn.Linear(64, 1)
         self.relu = nn.ReLU()
 
     def forward(self, x):
@@ -155,6 +178,10 @@ class BIGRU(nn.Module):
         out = self.fc1(out)
         out = self.relu(out)
         out = self.fc2(out)
+        out = self.relu(out)
+        out = self.fc3(out)
+        out = self.relu(out)
+        out = self.fc4(out)
         out = torch.flatten(out)
         return out
 
@@ -169,7 +196,7 @@ class RNN_encoder(nn.Module):
                           hidden_size = hidden_size, 
                           num_layers = num_layers, 
                           batch_first=True, 
-                          dropout = 0.3)
+                          dropout = dropout)
         
     def forward(self, x):
         h0 = torch.zeros(self.num_layers, x.size()[0], self.hidden_size).to(self.device)
@@ -187,7 +214,7 @@ class RNN_decoder(nn.Module):
                           hidden_size = hidden_size,
                           num_layers = num_layers,
                           batch_first = True,
-                          dropout = 0.3)
+                          dropout = dropout)
         self.linear = nn.Linear(hidden_size, 1)
         
     def forward(self, x, hn):
@@ -197,22 +224,23 @@ class RNN_decoder(nn.Module):
         return out, hn
         
 class RNN_encoder_decoder(nn.Module):
-    def __init__(self, input_size, hidden_size, dropout, device):
+    def __init__(self, input_size, hidden_size, num_layers, dropout, device):
         super(RNN_encoder_decoder, self).__init__()
         self.device = device
         self.input_size = input_size
         self.hidden_size = hidden_size
-
+        self.num_layers = num_layers
+        
         self.RNN_encoder = RNN_encoder(input_size = input_size, 
                                        hidden_size = hidden_size,
                                        num_layers = num_layers,
-                                       dropout = 0.3,
+                                       dropout = dropout,
                                        device = device)
         
         self.RNN_decoder = RNN_decoder(input_size = input_size, 
                                        hidden_size = hidden_size,
                                        num_layers = num_layers,
-                                       dropout = 0.3,
+                                       dropout = dropout,
                                        device = device)
 
     def forward(self, x, y, target_len, teacher_forcing_ratio):
@@ -254,7 +282,7 @@ class LSTM_encoder(nn.Module):
                             hidden_size = hidden_size, 
                             num_layers = num_layers, 
                             batch_first=True, 
-                            dropout = 0.3)
+                            dropout = dropout)
         
     def forward(self, x):
         h0 = torch.zeros(self.num_layers, x.size()[0], self.hidden_size).to(self.device)
@@ -273,7 +301,7 @@ class LSTM_decoder(nn.Module):
                             hidden_size = hidden_size,
                             num_layers = num_layers,
                             batch_first = True,
-                            dropout = 0.3)
+                            dropout = dropout)
         self.linear = nn.Linear(hidden_size, 1)
         
     def forward(self, x, hn, cn):
@@ -283,7 +311,7 @@ class LSTM_decoder(nn.Module):
         return out, (hn, cn)
         
 class LSTM_encoder_decoder(nn.Module):
-    def __init__(self, input_size, hidden_size, dropout, device):
+    def __init__(self, input_size, hidden_size, num_layers, dropout, device):
         super(LSTM_encoder_decoder, self).__init__()
         self.device = device
         self.input_size = input_size
@@ -292,7 +320,7 @@ class LSTM_encoder_decoder(nn.Module):
         self.LSTM_encoder = LSTM_encoder(input_size = input_size, 
                                          hidden_size = hidden_size,
                                          num_layers = num_layers,
-                                         dropout = 0.3,
+                                         dropout = dropout,
                                          device = device)
         
         self.LSTM_decoder = LSTM_decoder(input_size = input_size, 
@@ -340,7 +368,7 @@ class GRU_encoder(nn.Module):
                           hidden_size = hidden_size, 
                           num_layers = num_layers, 
                           batch_first=True, 
-                          dropout = 0.3)
+                          dropout = dropout)
         
     def forward(self, x):
         h0 = torch.zeros(self.num_layers, x.size()[0], self.hidden_size).to(self.device)
@@ -358,7 +386,7 @@ class GRU_decoder(nn.Module):
                           hidden_size = hidden_size,
                           num_layers = num_layers,
                           batch_first = True,
-                          dropout = 0.3)
+                          dropout = dropout)
         self.linear = nn.Linear(hidden_size, 1)
         
     def forward(self, x, hn):
@@ -368,7 +396,7 @@ class GRU_decoder(nn.Module):
         return out, hn
         
 class GRU_encoder_decoder(nn.Module):
-    def __init__(self, input_size, hidden_size, dropout, device):
+    def __init__(self, input_size, hidden_size, num_layers, dropout, device):
         super(GRU_encoder_decoder, self).__init__()
         self.device = device
         self.input_size = input_size
@@ -377,7 +405,7 @@ class GRU_encoder_decoder(nn.Module):
         self.GRU_encoder = GRU_encoder(input_size = input_size, 
                                        hidden_size = hidden_size,
                                        num_layers = num_layers,
-                                       dropout = 0.3,
+                                       dropout = dropout,
                                        device = device)
         
         self.GRU_decoder = GRU_decoder(input_size = input_size, 
@@ -415,9 +443,9 @@ class GRU_encoder_decoder(nn.Module):
 
         return outputs
         
-class BIRNN_encoder(nn.Module):
+class BiRNN_encoder(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, dropout, device):
-        super(BIRNN_encoder, self).__init__()
+        super(BiRNN_encoder, self).__init__()
         self.device = device
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -427,16 +455,16 @@ class BIRNN_encoder(nn.Module):
                           num_layers = num_layers, 
                           batch_first=True, 
                           bidirectional = True, 
-                          dropout = 0.3)
+                          dropout = dropout)
         
     def forward(self, x):
         h0 = torch.zeros(self.num_layers * 2, x.size()[0], self.hidden_size).to(self.device)
         out, hn = self.rnn(x, h0)
         return out, hn
         
-class BIRNN_decoder(nn.Module):
+class BiRNN_decoder(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, dropout, device):
-        super(BIRNN_decoder, self).__init__()
+        super(BiRNN_decoder, self).__init__()
         self.device = device
         self.hidden_size = hidden_size
         self.num_layers = num_layers
@@ -445,7 +473,7 @@ class BIRNN_decoder(nn.Module):
                           hidden_size = hidden_size,
                           num_layers = num_layers,
                           batch_first = True,
-                          dropout = 0.3)
+                          dropout = dropout)
         self.linear = nn.Linear(hidden_size, 1)
         
     def forward(self, x, hn):
@@ -454,23 +482,23 @@ class BIRNN_decoder(nn.Module):
         out = self.linear(out)
         return out, hn
         
-class BIRNN_encoder_decoder(nn.Module):
-    def __init__(self, input_size, hidden_size, dropout, device):
-        super(BIRNN_encoder_decoder, self).__init__()
+class BiRNN_encoder_decoder(nn.Module):
+    def __init__(self, input_size, hidden_size, num_layers, dropout, device):
+        super(BiRNN_encoder_decoder, self).__init__()
         self.device = device
         self.input_size = input_size
         self.hidden_size = hidden_size
 
-        self.BIRNN_encoder = BIRNN_encoder(input_size = input_size, 
+        self.BiRNN_encoder = BiRNN_encoder(input_size = input_size, 
                                            hidden_size = hidden_size,
                                            num_layers = num_layers,
-                                           dropout = 0.3,
+                                           dropout = dropout,
                                            device = device)
         
-        self.BIRNN_decoder = BIRNN_decoder(input_size = input_size, 
+        self.BiRNN_decoder = BiRNN_decoder(input_size = input_size, 
                                            hidden_size = hidden_size,
                                            num_layers = num_layers,
-                                           dropout = 0.3,
+                                           dropout = dropout,
                                            device = device)
 
     def forward(self, x, y, target_len, teacher_forcing_ratio):
@@ -502,9 +530,9 @@ class BIRNN_encoder_decoder(nn.Module):
 
         return outputs
         
-class BILSTM_encoder(nn.Module):
+class BiLSTM_encoder(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, dropout, device):
-        super(BILSTM_encoder, self).__init__()
+        super(BiLSTM_encoder, self).__init__()
         self.device = device
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -514,7 +542,7 @@ class BILSTM_encoder(nn.Module):
                             num_layers = num_layers, 
                             batch_first=True, 
                             bidirectional = True, 
-                            dropout = 0.3)
+                            dropout = dropout)
         
     def forward(self, x):
         h0 = torch.zeros(self.num_layers * 2, x.size()[0], self.hidden_size).to(self.device)
@@ -522,9 +550,9 @@ class BILSTM_encoder(nn.Module):
         out, (hn, cn) = self.lstm(x, (h0, c0))
         return out, (hn, cn)
 
-class BILSTM_decoder(nn.Module):
+class BiLSTM_decoder(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, dropout, device):
-        super(BILSTM_decoder, self).__init__()
+        super(BiLSTM_decoder, self).__init__()
         self.device = device
         self.hidden_size = hidden_size
         self.num_layers = num_layers
@@ -533,7 +561,7 @@ class BILSTM_decoder(nn.Module):
                             hidden_size = hidden_size,
                             num_layers = num_layers,
                             batch_first = True,
-                            dropout = 0.3)
+                            dropout = dropout)
         self.linear = nn.Linear(hidden_size, 1)
         
     def forward(self, x, hn, cn):
@@ -542,23 +570,23 @@ class BILSTM_decoder(nn.Module):
         out = self.linear(out)
         return out, (hn, cn)
         
-class BILSTM_encoder_decoder(nn.Module):
-    def __init__(self, input_size, hidden_size, dropout, device):
-        super(BILSTM_encoder_decoder, self).__init__()
+class BiLSTM_encoder_decoder(nn.Module):
+    def __init__(self, input_size, hidden_size, num_layers, dropout, device):
+        super(BiLSTM_encoder_decoder, self).__init__()
         self.device = device
         self.input_size = input_size
         self.hidden_size = hidden_size
 
-        self.BILSTM_encoder = BILSTM_encoder(input_size = input_size, 
+        self.BiLSTM_encoder = BiLSTM_encoder(input_size = input_size, 
                                              hidden_size = hidden_size,
                                              num_layers = num_layers,
-                                             dropout = 0.3,
+                                             dropout = dropout,
                                              device = device)
         
-        self.BILSTM_decoder = BILSTM_decoder(input_size = input_size, 
+        self.BiLSTM_decoder = BiLSTM_decoder(input_size = input_size, 
                                              hidden_size = hidden_size,
                                              num_layers = num_layers,
-                                             dropout = 0.3,
+                                             dropout = dropout,
                                              device = device)
 
     def forward(self, x, y, target_len, teacher_forcing_ratio):
@@ -590,9 +618,9 @@ class BILSTM_encoder_decoder(nn.Module):
 
         return outputs
         
-class BIGRU_encoder(nn.Module):
+class BiGRU_encoder(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, dropout, device):
-        super(BIGRU_encoder, self).__init__()
+        super(BiGRU_encoder, self).__init__()
         self.device = device
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -602,16 +630,16 @@ class BIGRU_encoder(nn.Module):
                           num_layers = num_layers, 
                           batch_first=True, 
                           bidirectional = True, 
-                          dropout = 0.3)
+                          dropout = dropout)
         
     def forward(self, x):
         h0 = torch.zeros(self.num_layers * 2, x.size()[0], self.hidden_size).to(self.device)
         out, hn = self.gru(x, h0)
         return out, hn
         
-class BIGRU_decoder(nn.Module):
+class BiGRU_decoder(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, dropout, device):
-        super(BIGRU_decoder, self).__init__()
+        super(BiGRU_decoder, self).__init__()
         self.device = device
         self.hidden_size = hidden_size
         self.num_layers = num_layers
@@ -620,7 +648,7 @@ class BIGRU_decoder(nn.Module):
                           hidden_size = hidden_size,
                           num_layers = num_layers,
                           batch_first = True,
-                          dropout = 0.3)
+                          dropout = dropout)
         self.linear = nn.Linear(hidden_size, 1)
         
     def forward(self, x, hn):
@@ -629,23 +657,23 @@ class BIGRU_decoder(nn.Module):
         out = self.linear(out)
         return out, hn
         
-class BIGRU_encoder_decoder(nn.Module):
-    def __init__(self, input_size, hidden_size, dropout, device):
-        super(BIGRU_encoder_decoder, self).__init__()
+class BiGRU_encoder_decoder(nn.Module):
+    def __init__(self, input_size, hidden_size, num_layers, dropout, device):
+        super(BiGRU_encoder_decoder, self).__init__()
         self.device = device
         self.input_size = input_size
         self.hidden_size = hidden_size
 
-        self.BIGRU_encoder = BIGRU_encoder(input_size = input_size, 
+        self.BiGRU_encoder = BiGRU_encoder(input_size = input_size, 
                                            hidden_size = hidden_size,
                                            num_layers = num_layers,
-                                           dropout = 0.3,
+                                           dropout = dropout,
                                            device = device)
         
-        self.BIGRU_decoder = BIGRU_decoder(input_size = input_size, 
+        self.BiGRU_decoder = BiGRU_decoder(input_size = input_size, 
                                            hidden_size = hidden_size,
                                            num_layers = num_layers,
-                                           dropout = 0.3,
+                                           dropout = dropout,
                                            device = device)
 
     def forward(self, x, y, target_len, teacher_forcing_ratio):
