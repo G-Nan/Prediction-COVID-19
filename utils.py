@@ -53,7 +53,7 @@ class Prepare_df:
 
         return x_ss, y_ms
         
-    def window_sliding(df, x, y, iw, ow):
+    def window_sliding(df, x, y, iw, ow, method):
     
         x_ws, y_ws = list(), list()
         for i in range(len(df)):
@@ -69,73 +69,66 @@ class Prepare_df:
             x_ws.append(tx)
             y_ws.append(ty)
     
-        return torch.FloatTensor(np.array(x_ws)).to(device), torch.FloatTensor(np.array(y_ws)).to(device)
+        if method == 'mto':
+            x_ss = torch.FloatTensor(np.array(x_ws)).to(device)
+            y_ms = torch.FloatTensor(np.array(y_ws)).to(device).view([-1, 1])
+        if method == 'mtm':
+            x_ss = torch.FloatTensor(np.array(x_ws)).to(device)
+            y_ms = torch.FloatTensor(np.array(y_ws)).to(device)
+        return x_ss, y_ms
     
-    def split_data(self, df, train_len, input_window, output_window):
+    def split_data(df, train_len, input_window, output_window, batch_size, method):
+    
         x = df.iloc[:, 0:]
         y = df.iloc[:,:1]
     
-        x_ss, y_ms = Prepare_df.Scailing(x, y)
+        x_ss, y_ms = Prepare_df.scailing(x, y)
        
         x = x.to_numpy()
         y = y.to_numpy()
-        x, y = Prepare_df.Window_sliding(df, x, y, input_window, output_window)
-        x_ss, y_ms = Prepare_df.Window_sliding(df, x_ss, y_ms, input_window, output_window)
+        x, y = Prepare_df.window_sliding(df, x, y, input_window, output_window, method)
+        x_ss, y_ms = Prepare_df.window_sliding(df, x_ss, y_ms, input_window, output_window, method)
 
         x_train = x_ss[:train_len]
         y_train = y_ms[:train_len]
         x_test = x_ss[train_len:]
         y_test = y_ms[train_len:]
 
+        print(x_train.shape)
+        print(y_train.shape)
+        print(x_test.shape)
+        print(y_test.shape)
+
         train = torch.utils.data.TensorDataset(x_train, y_train)
         test = torch.utils.data.TensorDataset(x_test, y_test)
 
-        batch_size = 64
+        batch_size = batch_size
         train_loader = torch.utils.data.DataLoader(dataset = train, batch_size = batch_size, shuffle = False)
         test_loader = torch.utils.data.DataLoader(dataset = test, batch_size = batch_size, shuffle = False)
 
         return x, y, x_ss, y_ms, train_loader, test_loader
-        
+
     
-class Save_and_Load:
+def save_model(model, path_model):
+    torch.save(model.state_dict(), path_model)
 
-    def __init__(self, model, path_model):
-        self.model = model
-        self.path_model = path_model
+def load_model(model, path_model):
+    model.load_state_dict(torch.load(path_model), strict=False)
+    model.eval()
+        
+def save_and_load(model, path_model):
+    save_model(model, path_model)
+    load_model(model, path_model)
+        
+def plotting(label_y, predicted, bar):
     
-    def save_model(model, path_model):
-        torch.save(model.state_dict(), path_model)
+    plt.figure(figsize = (10, 6))
+    plt.axvline(x = bar, c = 'r', linestyle = '--')
 
-    def load_model(model, path_model):
-        model.load_state_dict(torch.load(path_model), strict=False)
-        model.eval()
-        
-    def save_and_load(model, path_model):
-        save_model(model, path_model)
-        load_model(model, path_model)
-        
-def plotting(train_loader, test_loader, actual):
-    with torch.no_grad():
-        train_pred = []
-        test_pred = []
-
-        for data in train_loader:
-            seq, target = data
-            out = model(seq)
-            train_pred += out.cpu().numpy().tolist()
-
-        for data in test_loader:
-            seq, target = data
-            out = model(seq)
-            test_pred += out.cpu().numpy().tolist()
-      
-    total = train_pred + test_pred
-    plt.figure(figsize=(20,10))
-    plt.plot(np.ones(100)*len(train_pred), np.linspace(0,1,100), '--', linewidth=0.6)
-    plt.plot(actual, '--')
-    plt.plot(total, 'b', linewidth=0.6)
-
-    plt.legend(['train boundary', 'actual', 'prediction'])
+    plt.plot(label_y, label = 'Actual Data')
+    plt.plot(predicted, label = 'Predicted Data')
+    plt.title('Time-Series Prediction')
+    plt.legend()
     plt.show()
 
 def mae(true, pred):
@@ -147,7 +140,53 @@ def rmse(true, pred):
 def mape(true, pred):
     return 100 * np.mean(np.abs((true-pred)/true))
 
-def predict():
+#class Predict:
+def predict_mto(model, df, x_ss, y_ms):
+
+    x = df.iloc[:, 0:]
+    y = df.iloc[:,:1]
+
+    ms = MinMaxScaler()
+    ss = StandardScaler()
+
+    ss.fit(x)
+    ms.fit(y)
+
+    train_predict = model(x_ss)
+    predicted = train_predict.cpu().data.numpy()
+    label_y = y_ms.cpu().data.numpy()
+    
+    #predicted = predicted.reshape(1110, 1)
+    predicted = ms.inverse_transform(predicted)
+    label_y = ms.inverse_transform(label_y)
+
+    return label_y, predicted
+    
+def predict_mtm(model, df, x_ss, y_ms, len_df, target_len, teacher_forcing_ratio, device):
+
+    x = df.iloc[:, 0:]
+    y = df.iloc[:,:1]
+
+    ms = MinMaxScaler()
+    ss = StandardScaler()
+
+    ss.fit(x)
+    ms.fit(y)
+
+    train_predict = model(x_ss, y_ms, 7, 0.5, device)
+    predicted = train_predict.cpu().data.numpy()
+    label_y = y_ms.cpu().data.numpy()
+    
+    first_predicted = predicted[:, 0, 0].reshape(len_df, 1)
+    first_label_y = label_y[:, 0, :].reshape(len_df, 1)
+
+    first_predicted = ms.inverse_transform(first_predicted)
+    first_label_y = ms.inverse_transform(first_label_y)
+
+    return label_y, predicted, first_label_y, first_predicted
+
+def predict_point(label_y, predicted):
+
     pre7 = ms.inverse_transform(predicted.reshape(881, 7))
     lab7 = ms.inverse_transform(label_y.reshape(881, 7))
 
@@ -163,7 +202,8 @@ def predict():
     plt.legend()
     plt.show()
 
-def random_predict():
+def random_predict(lab7, pre7):
+
     ran = random.randrange(600, 899)
     plt.plot(lab7[ran], label = 'Actual Data')
     plt.plot(pre7[ran], label = 'Predicted Data')
