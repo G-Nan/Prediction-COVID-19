@@ -19,17 +19,23 @@ class RNN(nn.Module):
         self.fc3 = nn.Linear(64, 1)
         self.relu = nn.ReLU()
 
-    def forward(self, x):
+    def forward(self, x):    
+        # x_size = [batch_size, sequence_length, features]
         h0 = torch.zeros(self.num_layers, x.size()[0], self.hidden_size).to(self.device)
         out, hn = self.rnn(x, h0)
+        # out_size = [batch_size, sequence_length, features]
+        # hn_size = [num_layers, batch_size, hidden_size]
         out = out.reshape(out.shape[0], -1)
+        # out_size = [batch_size, sequence_length * features]
         out = self.fc1(out)
+        # out_size = [batch_size, 128]
         out = self.relu(out)
         out = self.fc2(out)
+        # out_size = [batch_size, 64]
         out = self.relu(out)
         out = self.fc3(out)
-        out = torch.flatten(out)
-        return out.unsqueeze(-1)
+        # out_size = [batch_size, 1]
+        return out    
 
 class LSTM(nn.Module):
     def __init__(self, input_size, hidden_size, sequence_length, num_layers, dropout, device):
@@ -48,17 +54,24 @@ class LSTM(nn.Module):
         self.relu = nn.ReLU()
 
     def forward(self, x):
+        # x_size = [batch_size, sequence_length, features]
         h0 = torch.zeros(self.num_layers, x.size()[0], self.hidden_size).to(self.device)
         c0 = torch.zeros(self.num_layers, x.size()[0], self.hidden_size).to(self.device)
         out, (hn, cn) = self.lstm(x, (h0, c0))
+        # out_size = [batch_size, sequence_length, hidden_size]
+        # hn_size = [num_layers, batch_size, hidden_size]
+        # cn_size = [num_layers, batch_size, hidden_size]
         out = out.reshape(out.shape[0], -1)
+        # out_size = [batch_size, sequence_length * hidden_size]
         out = self.fc1(out)
+        # out_size = [batch_size, 128]
         out = self.relu(out)
         out = self.fc2(out)
+        # out_size = [batch_size, 64]
         out = self.relu(out)
         out = self.fc3(out)
-        out = torch.flatten(out)
-        return out.unsqueeze(-1)
+        # out_size = [batch_size, 1]
+        return out
 
 class GRU(nn.Module):
     def __init__(self, input_size, hidden_size, sequence_length, num_layers, dropout, device):
@@ -78,16 +91,22 @@ class GRU(nn.Module):
         self.relu = nn.ReLU()
 
     def forward(self, x):
+        # x_size = [batch_size, sequence_length, features]
         h0 = torch.zeros(self.num_layers, x.size()[0], self.hidden_size).to(self.device)
         out, hn = self.gru(x, h0)
+        # out_size = [batch_size, sequence_length, hidden_size]
+        # hn_size = [num_layers, batch_size, hidden_size]
         out = out.reshape(out.shape[0], -1)
+        # out_size = [batch_size, sequence_length * hidden_size]
         out = self.fc1(out)
+        # out_size = [batch_size, 128]
         out = self.relu(out)
         out = self.fc2(out)
+        # out_size = [batch_size, 64]
         out = self.relu(out)
         out = self.fc3(out)
-        out = torch.flatten(out)
-        return out.unsqueeze(-1)
+        # out_size = [batch_size, 1]
+        return out
 
 class BiRNN(nn.Module):
     def __init__(self, input_size, hidden_size, sequence_length, num_layers, dropout, device):
@@ -108,18 +127,25 @@ class BiRNN(nn.Module):
         self.relu = nn.ReLU()
 
     def forward(self, x):
+        # x_size = [batch_size, sequence_length, features]
         h0 = torch.zeros(self.num_layers * 2, x.size()[0], self.hidden_size).to(self.device)
         out, hn = self.rnn(x, h0)
+        # out_size = [batch_size, sequence_length, hidden_size * 2]
+        # hn_size = [num_layers * 2, batch_size, hidden_size]
         out = out.reshape(out.shape[0], -1)
+        # out_size = [batch_size, sequence_length * hidden_size * 2]
         out = self.fc1(out)
+        # out_size = [batch_size, 256]
         out = self.relu(out)
         out = self.fc2(out)
+        # out_size = [batch_size, 128]
         out = self.relu(out)
         out = self.fc3(out)
+        # out_size = [batch_size, 64]
         out = self.relu(out)
         out = self.fc4(out)
-        out = torch.flatten(out)
-        return out.unsqueeze(-1)
+        # out_size = [batch_size, 1]
+        return out
 
 class BiLSTM(nn.Module):
     def __init__(self, input_size, hidden_size, sequence_length, num_layers, dropout, device):
@@ -140,19 +166,27 @@ class BiLSTM(nn.Module):
         self.relu = nn.ReLU()
 
     def forward(self, x):
+        # x_size = [batch_size, sequence_length, features]
         h0 = torch.zeros(self.num_layers*2, x.size()[0], self.hidden_size).to(self.device)
         c0 = torch.zeros(self.num_layers*2, x.size()[0], self.hidden_size).to(self.device)
         out, (hn, cn) = self.lstm(x, (h0, c0))
+        # out_size = [batch_size, sequence_length, hidden_size * 2]
+        # hn_size = [num_layers * 2, batch_size, hidden_size]
+        # cn_size = [num_layers * 2, batch_size, hidden_size]
         out = out.reshape(out.shape[0], -1)
+        # out_size = [batch_size, sequence_length * hidden_size * 2]
         out = self.fc1(out)
+        # out_size = [batch_size, 256]
         out = self.relu(out)
         out = self.fc2(out)
+        # out_size = [batch_size, 128]
         out = self.relu(out)
         out = self.fc3(out)
+        # out_size = [batch_size, 64]
         out = self.relu(out)
         out = self.fc4(out)
-        out = torch.flatten(out)
-        return out.unsqueeze(-1)
+        # out_size = [batch_size, 1]
+        return out
 
 class BiGRU(nn.Module):
     def __init__(self, input_size, hidden_size, sequence_length, num_layers, dropout, device):
@@ -173,18 +207,25 @@ class BiGRU(nn.Module):
         self.relu = nn.ReLU()
 
     def forward(self, x):
+        # x_size = [batch_size, sequence_length, features]
         h0 = torch.zeros(self.num_layers * 2, x.size()[0], self.hidden_size).to(self.device)
         out, hn = self.gru(x, h0)
+        # out_size = [batch_size, sequence_length, hidden_size * 2]
+        # hn_size = [num_layers * 2, batch_size, hidden_size]
         out = out.reshape(out.shape[0], -1)
+        # out_size = [batch_size, sequence_length * hidden_size * 2]
         out = self.fc1(out)
+        # out_size = [batch_size, 256]
         out = self.relu(out)
         out = self.fc2(out)
+        # out_size = [batch_size, 128]
         out = self.relu(out)
         out = self.fc3(out)
+        # out_size = [batch_size, 64]
         out = self.relu(out)
         out = self.fc4(out)
-        out = torch.flatten(out)
-        return out.unsqueeze(-1)
+        # out_size = [batch_size, 1]
+        return out
 
 class RNN_encoder(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, dropout, device):
@@ -200,8 +241,11 @@ class RNN_encoder(nn.Module):
                           dropout = dropout)
         
     def forward(self, x):
+        # x_size = [batch_size, sequence_length, features]
         h0 = torch.zeros(self.num_layers, x.size()[0], self.hidden_size).to(self.device)
         out, hn = self.rnn(x, h0)
+        # out_size = [batch_size, sequence_length, hidden_size]
+        # hn_size = [num_layers, batch_size, hidden_size]
         return out, hn
         
 class RNN_decoder(nn.Module):
@@ -219,9 +263,14 @@ class RNN_decoder(nn.Module):
         self.linear = nn.Linear(hidden_size, 1)
         
     def forward(self, x, hn):
+        # x_size = [batch_size, features]
         x = x.unsqueeze(1)
+        # x_size = [batch_size, 1, features]
         out, hn = self.rnn(x, hn)
+        # out_size = [batch_size, 1, hidden_size]
+        # hn_size = [num_layers, batch_size, hidden_size]
         out = self.linear(out)
+        # out_size = [batch_size, 1, 1]
         return out, hn
         
 class RNN_encoder_decoder(nn.Module):
@@ -246,7 +295,6 @@ class RNN_encoder_decoder(nn.Module):
 
     def forward(self, x, y, target_len, teacher_forcing_ratio, device):
         batch_size = x.shape[0]
-        input_size = x.shape[2]
         outputs = torch.zeros(batch_size, target_len, 1)
         _, hn = self.RNN_encoder(x)
         decoder_input = x[:,-1, :]
@@ -254,6 +302,7 @@ class RNN_encoder_decoder(nn.Module):
         for t in range(target_len): 
             out, hn = self.RNN_decoder(decoder_input, hn)
             out =  out.squeeze(1)
+            # out_size = [batch_size, 1]
             
             # teacher forcing을 구현한다.
             # teacher forcing에 해당하면 다음 인풋값으로는 예측한 값이 아니라 실제 값을 사용한다.
@@ -261,7 +310,7 @@ class RNN_encoder_decoder(nn.Module):
                 decoder_output = y[:, t, :]
             else:
                 decoder_output = out
-                
+            
             outputs[:,t,:] = out
             
             decoder_sub = torch.zeros(decoder_input.shape).to(device)
@@ -269,7 +318,8 @@ class RNN_encoder_decoder(nn.Module):
             decoder_sub[:, 1] = decoder_input[:, 0] - decoder_sub[:, 0]
             decoder_sub[:, 2] = decoder_input[:, 1] - decoder_sub[:, 1]
             decoder_input = decoder_sub
-
+            
+        # output_size = [batch_size, 7, 1]
         return outputs
         
 class LSTM_encoder(nn.Module):
@@ -286,9 +336,13 @@ class LSTM_encoder(nn.Module):
                             dropout = dropout)
         
     def forward(self, x):
+        # x_size = [batch_size, sequence_length, features]
         h0 = torch.zeros(self.num_layers, x.size()[0], self.hidden_size).to(self.device)
         c0 = torch.zeros(self.num_layers, x.size()[0], self.hidden_size).to(self.device)
         out, (hn, cn) = self.lstm(x, (h0, c0))
+        # out_size = [batch_size, sequence_length, hidden_size]
+        # hn_size = [num_layers, batch_size, hidden_size]
+        # cn_size = [num_layers, batch_size, hidden_size]
         return out, (hn, cn)
 
 class LSTM_decoder(nn.Module):
@@ -306,9 +360,15 @@ class LSTM_decoder(nn.Module):
         self.linear = nn.Linear(hidden_size, 1)
         
     def forward(self, x, hn, cn):
+        # x_size = [batch_size, features]
         x = x.unsqueeze(1)
+        # x_size = [batch_size, 1, features]
         out, (hn, cn) = self.lstm(x, (hn, cn))
+        # out_size = [batch_size, 1, hidden_size]
+        # hn_size = [num_layers, batch_size, hidden_size]
+        # cn_size = [num_layers, batch_size, hidden_size]
         out = self.linear(out)
+        # out_size = [batch_size, 1, 1]
         return out, (hn, cn)
         
 class LSTM_encoder_decoder(nn.Module):
@@ -332,7 +392,6 @@ class LSTM_encoder_decoder(nn.Module):
 
     def forward(self, x, y, target_len, teacher_forcing_ratio, device):
         batch_size = x.shape[0]
-        input_size = x.shape[2]
         outputs = torch.zeros(batch_size, target_len, 1)
         _, (hn, cn) = self.LSTM_encoder(x)
         decoder_input = x[:,-1, :]
@@ -340,6 +399,7 @@ class LSTM_encoder_decoder(nn.Module):
         for t in range(target_len): 
             out, (hn, cn) = self.LSTM_decoder(decoder_input, hn, cn)
             out =  out.squeeze(1)
+            # out_size = [batch_size, 1]
             
             # teacher forcing을 구현한다.
             # teacher forcing에 해당하면 다음 인풋값으로는 예측한 값이 아니라 실제 값을 사용한다.
@@ -356,6 +416,7 @@ class LSTM_encoder_decoder(nn.Module):
             decoder_sub[:, 2] = decoder_input[:, 1] - decoder_sub[:, 1]
             decoder_input = decoder_sub
 
+        # output_size = [batch_size, 7, 1]
         return outputs
         
 class GRU_encoder(nn.Module):
@@ -372,8 +433,11 @@ class GRU_encoder(nn.Module):
                           dropout = dropout)
         
     def forward(self, x):
+        # x_size = [batch_size, sequence_length, features]
         h0 = torch.zeros(self.num_layers, x.size()[0], self.hidden_size).to(self.device)
         out, hn = self.gru(x, h0)
+        # out_size = [batch_size, sequence_length, hidden_size]
+        # hn_size = [num_layers, batch_size, hidden_size]
         return out, hn
         
 class GRU_decoder(nn.Module):
@@ -391,9 +455,14 @@ class GRU_decoder(nn.Module):
         self.linear = nn.Linear(hidden_size, 1)
         
     def forward(self, x, hn):
+        # x_size = [batch_size, features]
         x = x.unsqueeze(1)
+        # x_size = [batch_size, 1, features]
         out, hn = self.gru(x, hn)
+        # out_size = [batch_size, 1, hidden_size]
+        # hn_size = [num_layers, batch_size, hidden_size]
         out = self.linear(out)
+        # out_size = [batch_size, 1, 1]
         return out, hn
         
 class GRU_encoder_decoder(nn.Module):
@@ -426,6 +495,7 @@ class GRU_encoder_decoder(nn.Module):
         for t in range(target_len): 
             out, hn = self.GRU_decoder(decoder_input, hn)
             out =  out.squeeze(1)
+            # out_size = [batch_size, 1]
             
             # teacher forcing을 구현한다.
             # teacher forcing에 해당하면 다음 인풋값으로는 예측한 값이 아니라 실제 값을 사용한다.
@@ -442,6 +512,7 @@ class GRU_encoder_decoder(nn.Module):
             decoder_sub[:, 2] = decoder_input[:, 1] - decoder_sub[:, 1]
             decoder_input = decoder_sub
 
+        # output_size = [batch_size, 7, 1]
         return outputs
         
 class BiRNN_encoder(nn.Module):
@@ -459,8 +530,11 @@ class BiRNN_encoder(nn.Module):
                           dropout = dropout)
         
     def forward(self, x):
+        # x_size = [batch_size, sequence_length, features]
         h0 = torch.zeros(self.num_layers * 2, x.size()[0], self.hidden_size).to(self.device)
         out, hn = self.rnn(x, h0)
+        # out_size = [batch_size, sequence_length, hidden_size * 2]
+        # hn_size = [num_layers * 2, batch_size, hidden_size]
         return out, hn
         
 class BiRNN_decoder(nn.Module):
@@ -478,9 +552,14 @@ class BiRNN_decoder(nn.Module):
         self.linear = nn.Linear(hidden_size, 1)
         
     def forward(self, x, hn):
+        # x_size = [batch_size, features]
         x = x.unsqueeze(1)
+        # x_size = [batch_size, 1, features]
         out, hn = self.rnn(x, hn)
+        # out_size = [batch_size, 1, hidden_size]
+        # hn_size = [num_layers * 2, batch_size, hidden_size]
         out = self.linear(out)
+        # out_size = [batch_size, 1, 1]
         return out, hn
         
 class BiRNN_encoder_decoder(nn.Module):
@@ -504,7 +583,6 @@ class BiRNN_encoder_decoder(nn.Module):
 
     def forward(self, x, y, target_len, teacher_forcing_ratio, device):
         batch_size = x.shape[0]
-        input_size = x.shape[2]
         outputs = torch.zeros(batch_size, target_len, 1)
         _, hn = self.BiRNN_encoder(x)
         decoder_input = x[:,-1, :]
@@ -513,6 +591,7 @@ class BiRNN_encoder_decoder(nn.Module):
         for t in range(target_len): 
             out, hn = self.BiRNN_decoder(decoder_input, hn)
             out =  out.squeeze(1)
+            # out_size = [batch_size, 1]
             
             # teacher forcing을 구현한다.
             # teacher forcing에 해당하면 다음 인풋값으로는 예측한 값이 아니라 실제 값을 사용한다.
@@ -529,6 +608,7 @@ class BiRNN_encoder_decoder(nn.Module):
             decoder_sub[:, 2] = decoder_input[:, 1] - decoder_sub[:, 1]
             decoder_input = decoder_sub
 
+        # output_size = [batch_size, 7, 1]
         return outputs
         
 class BiLSTM_encoder(nn.Module):
@@ -546,9 +626,13 @@ class BiLSTM_encoder(nn.Module):
                             dropout = dropout)
         
     def forward(self, x):
+        # x_size = [batch_size, sequence_length, features]
         h0 = torch.zeros(self.num_layers * 2, x.size()[0], self.hidden_size).to(self.device)
         c0 = torch.zeros(self.num_layers * 2, x.size()[0], self.hidden_size).to(self.device)
         out, (hn, cn) = self.lstm(x, (h0, c0))
+        # out_size = [batch_size, sequence_length, hidden_size * 2]
+        # hn_size = [num_layers * 2, batch_size, hidden_size]
+        # cn_size = [num_layers * 2, batch_size, hidden_size]
         return out, (hn, cn)
 
 class BiLSTM_decoder(nn.Module):
@@ -566,9 +650,15 @@ class BiLSTM_decoder(nn.Module):
         self.linear = nn.Linear(hidden_size, 1)
         
     def forward(self, x, hn, cn):
+        # x_size = [batch_size, features]
         x = x.unsqueeze(1)
+        # x_size = [batch_size, 1, features]
         out, (hn, cn) = self.lstm(x, (hn, cn))
+        # out_size = [batch_size, 1, hidden_size]
+        # hn_size = [num_layers * 2, batch_size, hidden_size]
+        # cn_size = [num_layers * 2, batch_size, hidden_size]
         out = self.linear(out)
+        # out_size = [batch_size, 1, 1]
         return out, (hn, cn)
         
 class BiLSTM_encoder_decoder(nn.Module):
@@ -601,6 +691,7 @@ class BiLSTM_encoder_decoder(nn.Module):
         for t in range(target_len): 
             out, (hn, cn) = self.BiLSTM_decoder(decoder_input, hn, cn)
             out =  out.squeeze(1)
+            # out_size = [batch_size, 1]
             
             # teacher forcing을 구현한다.
             # teacher forcing에 해당하면 다음 인풋값으로는 예측한 값이 아니라 실제 값을 사용한다.
@@ -617,6 +708,7 @@ class BiLSTM_encoder_decoder(nn.Module):
             decoder_sub[:, 2] = decoder_input[:, 1] - decoder_sub[:, 1]
             decoder_input = decoder_sub
 
+        # output_size = [batch_size, 7, 1]
         return outputs
         
 class BiGRU_encoder(nn.Module):
@@ -634,8 +726,11 @@ class BiGRU_encoder(nn.Module):
                           dropout = dropout)
         
     def forward(self, x):
+        # x_size = [batch_size, sequence_length, features]
         h0 = torch.zeros(self.num_layers * 2, x.size()[0], self.hidden_size).to(self.device)
         out, hn = self.gru(x, h0)
+        # out_size = [batch_size, sequence_length, hidden_size * 2]
+        # hn_size = [num_layers * 2, batch_size, hidden_size]
         return out, hn
         
 class BiGRU_decoder(nn.Module):
@@ -653,9 +748,14 @@ class BiGRU_decoder(nn.Module):
         self.linear = nn.Linear(hidden_size, 1)
         
     def forward(self, x, hn):
+        # x_size = [batch_size, features]
         x = x.unsqueeze(1)
+        # x_size = [batch_size, 1, features]
         out, hn = self.gru(x, hn)
+        # out_size = [batch_size, 1, hidden_size]
+        # hn_size = [num_layers * 2, batch_size, hidden_size]
         out = self.linear(out)
+        # out_size = [batch_size, 1, 1]
         return out, hn
         
 class BiGRU_encoder_decoder(nn.Module):
@@ -688,6 +788,7 @@ class BiGRU_encoder_decoder(nn.Module):
         for t in range(target_len): 
             out, hn = self.BiGRU_decoder(decoder_input, hn)
             out =  out.squeeze(1)
+            # out_size = [batch_size, 1]
             
             # teacher forcing을 구현한다.
             # teacher forcing에 해당하면 다음 인풋값으로는 예측한 값이 아니라 실제 값을 사용한다.
@@ -704,4 +805,5 @@ class BiGRU_encoder_decoder(nn.Module):
             decoder_sub[:, 2] = decoder_input[:, 1] - decoder_sub[:, 1]
             decoder_input = decoder_sub
 
+        # output_size = [batch_size, 7, 1]
         return outputs

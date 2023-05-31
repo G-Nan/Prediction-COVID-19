@@ -1,5 +1,6 @@
 import os
 import glob
+import pickle
 
 import numpy as np
 import pandas as pd
@@ -93,12 +94,7 @@ class Prepare_df:
         y_train = y_ms[:train_len]
         x_test = x_ss[train_len:]
         y_test = y_ms[train_len:]
-
-        print(x_train.shape)
-        print(y_train.shape)
-        print(x_test.shape)
-        print(y_test.shape)
-
+        
         train = torch.utils.data.TensorDataset(x_train, y_train)
         test = torch.utils.data.TensorDataset(x_test, y_test)
 
@@ -109,17 +105,30 @@ class Prepare_df:
         return x, y, x_ss, y_ms, train_loader, test_loader
 
     
-def save_model(model, path_model):
-    torch.save(model.state_dict(), path_model)
+def save_model(model_dict, path_model):
+    torch.save(model_dict, path_model)
 
 def load_model(model, path_model):
     model.load_state_dict(torch.load(path_model), strict=False)
     model.eval()
         
-def save_and_load(model, path_model):
+def save_and_load_model(model, path_model):
     save_model(model, path_model)
     load_model(model, path_model)
-        
+    
+def save_hyperparameter(hyperparameter, path_hyperparameter):
+    with open(path_hyperparameter, 'wb') as f:
+        pickle.dump(hyperparameter, f)
+    
+def load_hyperparameter(path_hyperparameter):
+    with open(path_hyperparameter, 'rb') as f:
+        hyperparameter = pickle.load(f)
+    return hyperparameter
+
+def save_and_load_hyperparameter(hyperparameter, path_hyperparameter):
+    save_hyperparameter(hyperparameter, path_hyperparameter)
+    load_hyperparameter(hyperparameter, path_hyperparameter)
+    
 def plotting(label_y, predicted, bar):
     
     plt.figure(figsize = (10, 6))
@@ -130,6 +139,43 @@ def plotting(label_y, predicted, bar):
     plt.title('Time-Series Prediction')
     plt.legend()
     plt.show()
+
+def criterion2(actual, predict):
+    
+    loss = 0
+    div = 0
+    
+    for i in range(7):
+        div += (i+1)
+    
+    for i in range(32):
+        
+        for j in range(7):
+            loss += (j+1) * (abs(actual[i][j] - predict[i][j]))
+              
+    loss /= div
+    loss /= 32
+        
+    return loss
+
+def criterion3(actual, predict):
+    
+    loss = 0
+    div = 0
+    
+    for i in range(7):
+        div += (i+1)**2
+    
+    for i in range(32):
+        
+        for j in range(7):
+            loss += ((j+1)**2) * ((actual[i][j] - predict[i][j])**2)
+               
+    loss /= div   
+    loss = loss**(1/2) 
+    loss /= 32
+    
+    return loss
 
 def mae(true, pred):
     return np.mean(np.abs(true-pred))

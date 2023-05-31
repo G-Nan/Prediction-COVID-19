@@ -7,6 +7,7 @@ import pandas as pd
 
 import torch
 import torch.nn as nn
+from tqdm.notebook import tqdm
 from torch.optim.adam import Adam
 from torch.utils.data import TensorDataset, DataLoader
 from torch.autograd import Variable
@@ -24,8 +25,10 @@ class Trainer:
     
         n = len(train_loader)
         loss_list = []
-    
-        for epoch in range(num_epochs):
+        min_loss = np.inf
+        
+        epoch_iterator = tqdm(range(num_epochs), position = 1)
+        for epoch in epoch_iterator:
             running_loss = 0.0
     
             for data in train_loader:
@@ -38,24 +41,33 @@ class Trainer:
                 optimizer.step()
                 running_loss += loss.item()
             loss_list.append(running_loss/n)
-            if (epoch+1) % 100 == 0:
-                print('epoch: %d loss: %.4f'%(epoch+1, running_loss/n))
+            
+            #if (epoch+1) % 100 == 0:
+            #    print('epoch: %d loss: %.4f'%(epoch+1, running_loss/n))
         
-            if (epoch % patience == 0) & (epoch != 0):
-                    
-                    if loss_list[epoch-patience] < loss_list[epoch]:
-                        print('\n Early Stopping / epoch: %d loss: %.4f'%(epoch+1, running_loss/n))
-                
-                        break
-    
-        return loss_list, model
+            if (running_loss/n) <= min_loss:
+                min_loss = (running_loss/n)
+                k = 0
+            else:
+                k += 1
+            
+            epoch_iterator.set_description("Training (%d / %d ) (loss=%2.5f)" % (epoch+1, num_epochs, running_loss/n))
+            
+            if k > patience:
+                print('\n Early Stopping / epoch: %d loss: %.4f'%(epoch+1, running_loss/n))
+                break
+            
+            
+        return loss_list, model, epoch
         
     def Many_to_Many(train_loader, test_loader, model, criterion, optimizer, num_epochs, patience, device):
     
         n = len(train_loader)
         loss_list = []
-
-        for epoch in range(num_epochs):
+        min_loss = np.inf
+        
+        epoch_iterator = tqdm(range(num_epochs), position = 1)
+        for epoch in epoch_iterator:
             running_loss = 0.0
     
             for data in train_loader:
@@ -67,14 +79,20 @@ class Trainer:
                 optimizer.step()
                 running_loss += loss.item()
             loss_list.append(running_loss/n)
-            if (epoch+1) % 100 == 0:
-                print('epoch: %d loss: %.6f'%(epoch+1, running_loss/n))
+            #if (epoch+1) % 100 == 0:
+            #    print('epoch: %d loss: %.6f'%(epoch+1, running_loss/n))
         
-            if (epoch % patience == 0) & (epoch != 0):
+        
+            if (running_loss/n) <= min_loss:
+                min_loss = (running_loss/n)
+                k = 0
+            else:
+                k += 1
             
-                if loss_list[epoch-patience] < loss_list[epoch]:
-                    print('\n Early Stopping / epoch: %d loss: %.6f'%(epoch+1, running_loss/n))
-                        
-                    break
+            epoch_iterator.set_description("Training (%d / %d ) (loss=%2.5f)" % (epoch+1, num_epochs, running_loss/n))
+            
+            if loss_list[epoch+1-patience] < loss_list[epoch+1]:
+                print('\n Early Stopping / epoch: %d loss: %.6f'%(epoch+1, running_loss/n))
+                break
                     
-        return loss_list, model
+        return loss_list, model, epoch
