@@ -41,13 +41,13 @@ class Trainer:
                 optimizer.step()
                 running_loss += loss.item()
             loss_list.append(running_loss/n)
-            
             #if (epoch+1) % 100 == 0:
             #    print('epoch: %d loss: %.4f'%(epoch+1, running_loss/n))
         
             if (running_loss/n) <= min_loss:
                 min_loss = (running_loss/n)
                 k = 0
+                min_loss_model = model
             else:
                 k += 1
             
@@ -58,7 +58,7 @@ class Trainer:
                 break
             
             
-        return loss_list, model, epoch
+        return loss_list, min_loss_model, epoch
         
     def Many_to_Many(train_loader, test_loader, model, criterion, optimizer, num_epochs, patience, device):
     
@@ -86,13 +86,14 @@ class Trainer:
             if (running_loss/n) <= min_loss:
                 min_loss = (running_loss/n)
                 k = 0
+                min_loss_model = model
             else:
                 k += 1
             
             epoch_iterator.set_description("Training (%d / %d ) (loss=%2.5f)" % (epoch+1, num_epochs, running_loss/n))
             
-            if loss_list[epoch+1-patience] < loss_list[epoch+1]:
+            if k > patience:
                 print('\n Early Stopping / epoch: %d loss: %.6f'%(epoch+1, running_loss/n))
                 break
                     
-        return loss_list, model, epoch
+        return loss_list, min_loss_model, epoch
