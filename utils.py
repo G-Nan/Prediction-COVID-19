@@ -148,13 +148,11 @@ def criterion2(actual, predict):
     for i in range(7):
         div += (i+1)
     
-    for i in range(32):
-        
-        for j in range(7):
-            loss += (j+1) * (abs(actual[i][j] - predict[i][j]))
-              
+    for i in range(7):
+        loss += sum((i+1) * (abs(actual[:, i, 0] - predict[:, i, 0])))
+
     loss /= div
-    loss /= 32
+    loss /= actual.shape[0]
         
     return loss
 
@@ -166,14 +164,12 @@ def criterion3(actual, predict):
     for i in range(7):
         div += (i+1)**2
     
-    for i in range(32):
-        
-        for j in range(7):
-            loss += ((j+1)**2) * ((actual[i][j] - predict[i][j])**2)
+    for i in range(7):
+        loss += sum(((i+1)**2) * ((actual[:, i, 0] - predict[:, i, 0])**2))
                
     loss /= div   
     loss = loss**(1/2) 
-    loss /= 32
+    loss /= actual.shape[0]
     
     return loss
 
