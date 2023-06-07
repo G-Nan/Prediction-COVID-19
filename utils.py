@@ -24,7 +24,7 @@ class Load_files:
         dic_files = {}
         for name in names:
             city = name[name_start:name_end]
-            sub = pd.read_csv(name)
+            sub = pd.read_csv(name, encoding = 'cp949')
             dic_files[city] = sub
 
         return dic_files
@@ -250,3 +250,138 @@ def random_predict(lab7, pre7):
     plt.plot(lab7[ran], label = 'Actual Data')
     plt.plot(pre7[ran], label = 'Predicted Data')
     plt.show()
+    
+    
+    
+def N_in_dict(dic_files, list_N):
+    
+    i = 0
+    for key, file in dic_files.items():
+        dic_files[key] = [list_N[i], file]
+        i += 1
+    
+    return dic_files
+
+def processing_SIR(file, N, Recover):
+
+    df = pd.DataFrame()
+
+    df['Date'] = file['stdDay']
+    df['City'] = file['gubun']
+
+    # 사망자
+    df['Dead'] = file['deathCnt']                 # 누적 사망자
+    df['daily_Dead'] = file['deathCnt'].diff()    # 일일 사망자
+
+    # 감염자
+    df['Inf_AC'] = file['defCnt']                 # 누적 감염자
+    df['Infected'] = file['defCnt']  
+    df.iloc[Recover:, -1] = (df.iloc[Recover:, -1]
+                            .reset_index(drop = True)
+                            .sub(df.iloc[:len(df)-Recover, -1]))
+    
+    # 회복자
+    df['Recovered'] = 0
+    df.iloc[Recover:, -1] = df.iloc[:len(df)-Recover, 4]
+    df['Recovered'] = df['Recovered'] - df['Dead']
+
+    # 취약자
+    df['Susceptible'] = N - df['Infected'] - df['Dead'] - df['Recovered']
+    df = df[['Date', 'City', 'Susceptible', 'Infected', 'Dead', 'Recovered']]
+    
+    # Alpha
+    df['alpha'] = (df['Susceptible'].shift(-1) - df['Susceptible'])
+    df['alpha'] = (-1 * N * df['alpha'])/(df['Susceptible'] * df['Infected'])
+    
+    # Beta
+    df['beta'] = (df['Recovered'].shift(-1) - df['Recovered'])
+    df['beta'] = df['beta']/df['Infected']
+
+    # Gamma
+    df['gamma'] = (df['Dead'].shift(-1) - df['Dead'])
+    df['gamma'] = df['gamma']/df['Infected']
+
+    df.loc[df['alpha'] == 0, 'alpha'] = 0
+    df = df.replace([np.inf, -np.inf], np.nan).fillna(0)
+    
+    return df
+
+def multiple_processing_SIR(dic_SIRs, df_variants, city, file, variable1, variable2, 
+                            input_index1, output_index1, input_index2, output_index2, 
+                            Recover, target_len):
+    
+    var1 = df_variants[variable1][input_index1:output_index1].reset_index(drop = True)
+    var2 = df_variants[variable2][input_index1:output_index1].reset_index(drop = True)
+
+
+    file['dailyDeath'] = file['deathCnt'].diff().fillna(0)
+    df = file.iloc[input_index2:output_index2, [4, 10, 11]].reset_index(drop = True).copy()
+
+    df[f'{variable1}_daily_dead'] = 0
+    df.iloc[Recover:, -1] = var1[:-Recover]*df['dailyDeath'][Recover:].reset_index(drop = True)
+    df[f'{variable2}_daily_dead'] = 0
+    df.iloc[Recover:, -1] = var2[:-Recover]*df['dailyDeath'][Recover:].reset_index(drop = True)
+
+    df[f'{variable1}_Dead'] = 0
+    df.iloc[Recover:, -1] = var1[:-Recover]*df['dailyDeath'][Recover:].reset_index(drop = True)
+    df[f'{variable2}_Dead'] = 0
+    df.iloc[Recover:, -1] = var2[:-Recover]*df['dailyDeath'][Recover:].reset_index(drop = True)
+
+    df[df.columns[5:7]] = df[df.columns[5:7]].expanding().sum() 
+
+    df[f'{variable1}_daily_Inf'] = df['incDec']*var1
+    df[f'{variable2}_daily_Inf'] = df['incDec']*var2
+
+    df[f'{variable1}_Inf_AC'] = df['incDec']*var1
+    df[f'{variable2}_Inf_AC'] = df['incDec']*var2
+
+    df[f'{variable1}_Infected'] = df['incDec']*var1
+    df[f'{variable2}_Infected'] = df['incDec']*var2
+
+    df.iloc[:, 9:] = df.iloc[:, 9:].expanding().sum() 
+
+    df.iloc[Recover:, -2] = (df.iloc[Recover:, -2]
+                             .reset_index(drop = True)
+                             .sub(df.iloc[:len(df)-Recover, -2]))
+    df.iloc[Recover:, -1] = (df.iloc[Recover:, -1]
+                             .reset_index(drop = True)
+                             .sub(df.iloc[:len(df)-Recover, -1]))
+
+    df[f'{variable1}_Recovered'] = 0
+    df.iloc[Recover:, -1] = df.iloc[:len(df)-Recover, 9]
+    df[f'{variable2}_Recovered'] = 0
+    df.iloc[Recover:, -1] = df.iloc[:len(df)-Recover, 10]
+
+    df[f'{variable1}_Recovered'] = df[f'{variable1}_Recovered'] - df[f'{variable1}_Dead']
+    df[f'{variable2}_Recovered'] = df[f'{variable2}_Recovered'] - df[f'{variable2}_Dead']
+
+    df['Susceptible'] = dic_SIRs[city]['Susceptible'][input_index2:output_index2].reset_index(drop = True)
+
+
+    df[f'{variable1}_alpha'] = df[f'{variable1}_daily_Inf'].shift(-1)
+    df[f'{variable1}_alpha'] = ((dic_SIRs[city]['Susceptible'][0] * df[f'{variable1}_alpha'])
+                               / (df['Susceptible'] * df[f'{variable1}_Infected']))
+
+    df[f'{variable2}_alpha'] = df[f'{variable2}_daily_Inf'].shift(-1)
+    df[f'{variable2}_alpha'] = ((dic_SIRs[city]['Susceptible'][0] * df[f'{variable2}_alpha'])
+                               / (df['Susceptible'] * df[f'{variable2}_Infected']))
+
+    df[f'{variable1}_beta'] = (df[f'{variable1}_Recovered'].shift(-1) - df[f'{variable1}_Recovered']) / df[f'{variable1}_Infected']
+    df[f'{variable2}_beta'] = (df[f'{variable2}_Recovered'].shift(-1) - df[f'{variable2}_Recovered']) / df[f'{variable2}_Infected']
+
+    df[f'{variable1}_gamma'] = (df[f'{variable1}_Dead'].shift(-1) - df[f'{variable1}_Dead']) / df[f'{variable1}_Infected']
+    df[f'{variable2}_gamma'] = (df[f'{variable2}_Dead'].shift(-1) - df[f'{variable2}_Dead']) / df[f'{variable2}_Infected']    
+
+    df = df[['stdDay', 'Susceptible', 
+            f'{variable1}_Infected', f'{variable1}_Recovered', f'{variable1}_Dead', 
+            f'{variable1}_alpha', f'{variable1}_beta', f'{variable1}_gamma',
+            f'{variable2}_Infected', f'{variable2}_Recovered', f'{variable2}_Dead', 
+            f'{variable2}_alpha', f'{variable2}_beta', f'{variable2}_gamma']]
+
+    df.loc[df[f'{variable1}_alpha'] == 0, f'{variable1}_alpha'] = 0
+    df.loc[df[f'{variable2}_alpha'] == 0, f'{variable2}_alpha'] = 0
+    df = df.replace([np.inf, -np.inf], np.nan).fillna(0)[target_len:].reset_index(drop = True)
+        
+    df
+    
+    return df

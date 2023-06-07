@@ -27,8 +27,9 @@ class Trainer:
         loss_list = []
         min_loss = np.inf
         
-        epoch_iterator = tqdm(range(num_epochs), position = 1)
-        for epoch in epoch_iterator:
+        #epoch_iterator = tqdm(range(num_epochs), position = 1)
+        #for epoch in epoch_iterator:
+        for epoch in range(num_epochs):
             running_loss = 0.0
     
             for data in train_loader:
@@ -51,10 +52,10 @@ class Trainer:
             else:
                 k += 1
             
-            epoch_iterator.set_description("Training (%d / %d ) (loss=%2.5f)" % (epoch+1, num_epochs, running_loss/n))
+            #epoch_iterator.set_description("Training (%d / %d ) (loss=%2.5f)" % (epoch+1, num_epochs, running_loss/n))
             
             if k > patience:
-                print('\n Early Stopping / epoch: %d loss: %.4f'%(epoch+1, running_loss/n))
+                #print('\n Early Stopping / epoch: %d loss: %.4f'%(epoch+1, running_loss/n))
                 break
             
             
@@ -66,8 +67,9 @@ class Trainer:
         loss_list = []
         min_loss = np.inf
         
-        epoch_iterator = tqdm(range(num_epochs), position = 1)
-        for epoch in epoch_iterator:
+        #epoch_iterator = tqdm(range(num_epochs), position = 1)
+        #for epoch in epoch_iterator:
+        for epoch in range(num_epochs):
             running_loss = 0.0
     
             for data in train_loader:
@@ -90,10 +92,10 @@ class Trainer:
             else:
                 k += 1
             
-            epoch_iterator.set_description("Training (%d / %d ) (loss=%2.5f)" % (epoch+1, num_epochs, running_loss/n))
+            #epoch_iterator.set_description("Training (%d / %d ) (loss=%2.5f)" % (epoch+1, num_epochs, running_loss/n))
             
             if k > patience:
-                print('\n Early Stopping / epoch: %d loss: %.6f'%(epoch+1, running_loss/n))
+                #print('\n Early Stopping / epoch: %d loss: %.6f'%(epoch+1, running_loss/n))
                 break
                     
         return loss_list, min_loss_model, epoch
