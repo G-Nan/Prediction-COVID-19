@@ -61,7 +61,7 @@ class Trainer:
             
         return loss_list, min_loss_model, epoch
         
-    def Many_to_Many(train_loader, test_loader, model, criterion, optimizer, num_epochs, patience, device):
+    def Many_to_Many(train_loader, test_loader, model, criterion, optimizer, num_epochs, patience, target_len, device):
     
         n = len(train_loader)
         loss_list = []
@@ -74,7 +74,7 @@ class Trainer:
     
             for data in train_loader:
                 seq, target = data
-                out = model(seq, target, 7, 0.5, device).to(device)
+                out = model(seq, target, target_len, 0.5, device).to(device)
                 loss = criterion(out, target)
                 optimizer.zero_grad()
                 loss.backward()
