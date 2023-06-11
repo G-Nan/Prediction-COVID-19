@@ -7,8 +7,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 import torch
+import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
+
+from model import *
 
 #warnings.filterwarnings('ignore')
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -103,18 +106,137 @@ class Prepare_df:
         test_loader = torch.utils.data.DataLoader(dataset = test, batch_size = batch_size, shuffle = False)
 
         return x, y, x_ss, y_ms, train_loader, test_loader
-
-    
+   
 def save_model(model_dict, path_model):
     torch.save(model_dict, path_model)
 
 def load_model(model, path_model):
     model.load_state_dict(torch.load(path_model), strict=False)
     model.eval()
+    return model
         
 def save_and_load_model(model, path_model):
     save_model(model, path_model)
     load_model(model, path_model)
+    
+def load_model_multiple(dic_hyperparameter, var1, var2):
+    input_size = 3
+    sequence_length = 60
+    dic_loaded_model = {}
+    
+    models_list = ['RNN', 'LSTM', 'GRU', 'BiRNN', 'BiLSTM', 'BiGRU', 
+               'seq2seq_RNN', 'seq2seq_LSTM', 'seq2seq_GRU', 
+               'seq2seq_BiRNN', 'seq2seq_BiLSTM', 'seq2seq_BiGRU']
+               
+    for num_model in range(12):
+    
+        model_name = models_list[num_model]
+        
+        lr = dic_hyperparameter[model_name][1]
+        patience = dic_hyperparameter[model_name][2]
+        num_layers = dic_hyperparameter[model_name][3]
+        batch_size = dic_hyperparameter[model_name][4]
+        hidden_size = dic_hyperparameter[model_name][5]
+        dropout = dic_hyperparameter[model_name][6]
+        if len(dic_hyperparameter[model_name]) < 8:
+            criterion = nn.MSELoss()
+        else:
+            criterion = dic_hyperparameter[model_name][7]
+            
+            
+        if num_model == 0:
+            model = RNN(input_size = input_size,
+                        hidden_size = hidden_size,
+                        sequence_length = sequence_length,
+                        num_layers = num_layers, 
+                        dropout = dropout, 
+                        device = device).to(device)
+
+        elif num_model == 1:
+            model = LSTM(input_size = input_size,
+                         hidden_size = hidden_size,
+                         sequence_length = sequence_length,
+                         num_layers = num_layers, 
+                         dropout = dropout, 
+                         device = device).to(device)
+
+        elif num_model == 2:
+            model = GRU(input_size = input_size,
+                        hidden_size = hidden_size,
+                        sequence_length = sequence_length,
+                        num_layers = num_layers, 
+                        dropout = dropout, 
+                        device = device).to(device)
+
+        elif num_model == 3:
+            model = BiRNN(input_size = input_size,
+                          hidden_size = hidden_size,
+                          sequence_length = sequence_length,
+                          num_layers = num_layers, 
+                          dropout = dropout, 
+                          device = device).to(device)
+
+        elif num_model == 4:
+            model = BiLSTM(input_size = input_size,
+                           hidden_size = hidden_size,
+                           sequence_length = sequence_length,
+                           num_layers = num_layers, 
+                           dropout = dropout, 
+                           device = device).to(device)
+
+        elif num_model == 5:
+            model = BiGRU(input_size = input_size,
+                          hidden_size = hidden_size,
+                          sequence_length = sequence_length,
+                          num_layers = num_layers, 
+                          dropout = dropout, 
+                          device = device).to(device)
+                
+        elif num_model == 6:
+            model = RNN_encoder_decoder(input_size = input_size, 
+                                        hidden_size = hidden_size,
+                                        num_layers = num_layers, 
+                                        dropout = dropout,
+                                        device = device).to(device)
+
+        elif num_model == 7:
+            model = LSTM_encoder_decoder(input_size = input_size, 
+                                         hidden_size = hidden_size,
+                                         num_layers = num_layers, 
+                                         dropout = dropout,
+                                         device = device).to(device)
+
+        elif num_model == 8:
+            model = GRU_encoder_decoder(input_size = input_size, 
+                                        hidden_size = hidden_size,
+                                        num_layers = num_layers, 
+                                        dropout = dropout,
+                                        device = device).to(device)
+
+        elif num_model == 9:
+            model = BiRNN_encoder_decoder(input_size = input_size, 
+                                            hidden_size = hidden_size,
+                                            num_layers = num_layers, 
+                                            dropout = dropout,
+                                            device = device).to(device)
+
+        elif num_model == 10:
+            model = BiLSTM_encoder_decoder(input_size = input_size, 
+                                              hidden_size = hidden_size,
+                                              num_layers = num_layers, 
+                                              dropout = dropout,
+                                              device = device).to(device)
+
+        elif num_model == 11:
+            model = BiGRU_encoder_decoder(input_size = input_size, 
+                                            hidden_size = hidden_size,
+                                            num_layers = num_layers, 
+                                            dropout = dropout,
+                                            device = device).to(device)
+            
+        dic_loaded_model[model_name] = load_model(model, f'model/{var1}/{var2}/{model_name}.pth')
+    
+    return dic_loaded_model
     
 def save_hyperparameter(hyperparameter, path_hyperparameter):
     with open(path_hyperparameter, 'wb') as f:
@@ -204,7 +326,7 @@ def predict_mto(model, df, x_ss, y_ms):
 
     return label_y, predicted
     
-def predict_mtm(model, df, x_ss, y_ms, len_df, target_len, teacher_forcing_ratio, device):
+def predict_mtm(model, df, x_ss, y_ms, target_len, teacher_forcing_ratio, device):
 
     x = df.iloc[:, 0:]
     y = df.iloc[:,:1]
@@ -215,17 +337,25 @@ def predict_mtm(model, df, x_ss, y_ms, len_df, target_len, teacher_forcing_ratio
     ss.fit(x)
     ms.fit(y)
 
-    train_predict = model(x_ss, y_ms, 7, 0.5, device)
-    predicted = train_predict.cpu().data.numpy()
-    label_y = y_ms.cpu().data.numpy()
+    train_predict = model(x_ss, y_ms, target_len, 0.5, device)
+    predicted = train_predict.cpu().detach().numpy()
+    label_y = y_ms.cpu().detach().numpy()
+
+    predicted = predicted.reshape(-1, 1)
+    label_y = label_y.reshape(-1, 1)
     
-    first_predicted = predicted[:, 0, 0].reshape(len_df, 1)
-    first_label_y = label_y[:, 0, :].reshape(len_df, 1)
+    predicted = ms.inverse_transform(predicted)
+    label_y = ms.inverse_transform(label_y)
+    
+    predicted = predicted.reshape(-1, target_len, 1)
+    label_y = label_y.reshape(-1, target_len, 1)
+    
+    first_predicted = predicted[:, 0, 0].reshape(-1, 1)
+    first_label_y = label_y[:, 0, :].reshape(-1, 1)
+    
+    all_predicted = np.concatenate((first_predicted[:-1], predicted[-1]))
 
-    first_predicted = ms.inverse_transform(first_predicted)
-    first_label_y = ms.inverse_transform(first_label_y)
-
-    return label_y, predicted, first_label_y, first_predicted
+    return label_y, predicted, first_label_y, first_predicted, all_predicted
 
 def predict_point(label_y, predicted):
 
