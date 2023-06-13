@@ -119,7 +119,7 @@ def save_and_load_model(model, path_model):
     save_model(model, path_model)
     load_model(model, path_model)
     
-def load_model_multiple(dic_hyperparameter, var1, var2):
+def load_model_multiple(dic_hyperparameter, var1, city, var2):
     input_size = 3
     sequence_length = 60
     dic_loaded_model = {}
@@ -234,7 +234,7 @@ def load_model_multiple(dic_hyperparameter, var1, var2):
                                             dropout = dropout,
                                             device = device).to(device)
             
-        dic_loaded_model[model_name] = load_model(model, f'model/{var1}/{var2}/{model_name}.pth')
+        dic_loaded_model[model_name] = load_model(model, f'model/{var1}/{city}/{var2}/{model_name}.pth')
     
     return dic_loaded_model
     
@@ -380,8 +380,6 @@ def random_predict(lab7, pre7):
     plt.plot(lab7[ran], label = 'Actual Data')
     plt.plot(pre7[ran], label = 'Predicted Data')
     plt.show()
-    
-    
     
 def N_in_dict(dic_files, list_N):
     
