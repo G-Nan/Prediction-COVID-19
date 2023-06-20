@@ -119,29 +119,28 @@ def save_and_load_model(model, path_model):
     save_model(model, path_model)
     load_model(model, path_model)
     
-def load_model_multiple(dic_hyperparameter, var1, city, var2):
+def load_model_multiple(dic_hyperparameter, var1, var2, city):
     input_size = 3
     sequence_length = 60
     dic_loaded_model = {}
     
     models_list = ['RNN', 'LSTM', 'GRU', 'BiRNN', 'BiLSTM', 'BiGRU', 
-               'seq2seq_RNN', 'seq2seq_LSTM', 'seq2seq_GRU', 
-               'seq2seq_BiRNN', 'seq2seq_BiLSTM', 'seq2seq_BiGRU']
+                   'seq2seq_RNN', 'seq2seq_LSTM', 'seq2seq_GRU', 
+                   'seq2seq_BiRNN', 'seq2seq_BiLSTM', 'seq2seq_BiGRU']
                
     for num_model in range(12):
     
         model_name = models_list[num_model]
         
-        lr = dic_hyperparameter[model_name][1]
-        patience = dic_hyperparameter[model_name][2]
-        num_layers = dic_hyperparameter[model_name][3]
-        batch_size = dic_hyperparameter[model_name][4]
-        hidden_size = dic_hyperparameter[model_name][5]
-        dropout = dic_hyperparameter[model_name][6]
-        if len(dic_hyperparameter[model_name]) < 8:
+        lr = dic_hyperparameter[city][model_name][1]
+        patience = dic_hyperparameter[city][model_name][2]
+        num_layers = dic_hyperparameter[city][model_name][3]
+        hidden_size = dic_hyperparameter[city][model_name][4]
+        dropout = dic_hyperparameter[city][model_name][5]
+        if len(dic_hyperparameter[city][model_name]) < 8:
             criterion = nn.MSELoss()
         else:
-            criterion = dic_hyperparameter[model_name][7]
+            criterion = dic_hyperparameter[city][model_name][6]
             
             
         if num_model == 0:
@@ -234,7 +233,7 @@ def load_model_multiple(dic_hyperparameter, var1, city, var2):
                                             dropout = dropout,
                                             device = device).to(device)
             
-        dic_loaded_model[model_name] = load_model(model, f'model/{var1}/{city}/{var2}/{model_name}.pth')
+        dic_loaded_model[model_name] = load_model(model, f'model/{var1}/{var2}/{city}/{model_name}.pth')
     
     return dic_loaded_model
     
