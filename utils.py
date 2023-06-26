@@ -119,7 +119,7 @@ def save_and_load_model(model, path_model):
     save_model(model, path_model)
     load_model(model, path_model)
     
-def load_model_multiple(dic_hyperparameter, var1, var2, city):
+def load_model_multiple(dic_hyperparameter, key, var1, var2, city):
     input_size = 3
     sequence_length = 60
     dic_loaded_model = {}
@@ -132,15 +132,15 @@ def load_model_multiple(dic_hyperparameter, var1, var2, city):
     
         model_name = models_list[num_model]
         
-        lr = dic_hyperparameter[city][model_name][1]
-        patience = dic_hyperparameter[city][model_name][2]
-        num_layers = dic_hyperparameter[city][model_name][3]
-        hidden_size = dic_hyperparameter[city][model_name][4]
-        dropout = dic_hyperparameter[city][model_name][5]
+        lr = dic_hyperparameter[city][model_name][2]
+        patience = dic_hyperparameter[city][model_name][3]
+        num_layers = dic_hyperparameter[city][model_name][4]
+        hidden_size = dic_hyperparameter[city][model_name][5]
+        dropout = dic_hyperparameter[city][model_name][6]
         if len(dic_hyperparameter[city][model_name]) < 8:
             criterion = nn.MSELoss()
         else:
-            criterion = dic_hyperparameter[city][model_name][6]
+            criterion = dic_hyperparameter[city][model_name][7]
             
             
         if num_model == 0:
@@ -233,7 +233,7 @@ def load_model_multiple(dic_hyperparameter, var1, var2, city):
                                             dropout = dropout,
                                             device = device).to(device)
             
-        dic_loaded_model[model_name] = load_model(model, f'model/{var1}/{var2}/{city}/{model_name}.pth')
+        dic_loaded_model[model_name] = load_model(model, f'model/{key}/{var1}/{var2}/{city}/{var2}_{city}_{model_name}.pth')
     
     return dic_loaded_model
     
@@ -260,7 +260,7 @@ def plotting(label_y, predicted, bar):
     plt.title('Time-Series Prediction')
     plt.legend()
     plt.show()
-
+   
 def criterion2(actual, predict):
     
     loss = 0
@@ -435,7 +435,7 @@ def processing_SIR(file, N, Recover):
 
 def multiple_processing_SIR(dic_SIRs, df_variants, city, file, variable1, variable2, 
                             input_index1, output_index1, input_index2, output_index2, 
-                            Recover, target_len):
+                            Recover1, Recover2, target_len):
     
     var1 = df_variants[variable1][input_index1:output_index1].reset_index(drop = True)
     var2 = df_variants[variable2][input_index1:output_index1].reset_index(drop = True)
@@ -445,14 +445,14 @@ def multiple_processing_SIR(dic_SIRs, df_variants, city, file, variable1, variab
     df = file.iloc[input_index2:output_index2, [4, 10, 11]].reset_index(drop = True).copy()
 
     df[f'{variable1}_daily_dead'] = 0
-    df.iloc[Recover:, -1] = var1[:-Recover]*df['dailyDeath'][Recover:].reset_index(drop = True)
+    df.iloc[Recover1:, -1] = var1[:-Recover1]*df['dailyDeath'][Recover1:].reset_index(drop = True)
     df[f'{variable2}_daily_dead'] = 0
-    df.iloc[Recover:, -1] = var2[:-Recover]*df['dailyDeath'][Recover:].reset_index(drop = True)
+    df.iloc[Recover2:, -1] = var2[:-Recover2]*df['dailyDeath'][Recover2:].reset_index(drop = True)
 
     df[f'{variable1}_Dead'] = 0
-    df.iloc[Recover:, -1] = var1[:-Recover]*df['dailyDeath'][Recover:].reset_index(drop = True)
+    df.iloc[Recover1:, -1] = var1[:-Recover1]*df['dailyDeath'][Recover1:].reset_index(drop = True)
     df[f'{variable2}_Dead'] = 0
-    df.iloc[Recover:, -1] = var2[:-Recover]*df['dailyDeath'][Recover:].reset_index(drop = True)
+    df.iloc[Recover2:, -1] = var2[:-Recover2]*df['dailyDeath'][Recover2:].reset_index(drop = True)
 
     df[df.columns[5:7]] = df[df.columns[5:7]].expanding().sum() 
 
@@ -467,17 +467,17 @@ def multiple_processing_SIR(dic_SIRs, df_variants, city, file, variable1, variab
 
     df.iloc[:, 9:] = df.iloc[:, 9:].expanding().sum() 
 
-    df.iloc[Recover:, -2] = (df.iloc[Recover:, -2]
+    df.iloc[Recover1:, -2] = (df.iloc[Recover1:, -2]
                              .reset_index(drop = True)
-                             .sub(df.iloc[:len(df)-Recover, -2]))
-    df.iloc[Recover:, -1] = (df.iloc[Recover:, -1]
+                             .sub(df.iloc[:len(df)-Recover1, -2]))
+    df.iloc[Recover2:, -1] = (df.iloc[Recover2:, -1]
                              .reset_index(drop = True)
-                             .sub(df.iloc[:len(df)-Recover, -1]))
+                             .sub(df.iloc[:len(df)-Recover2, -1]))
 
     df[f'{variable1}_Recovered'] = 0
-    df.iloc[Recover:, -1] = df.iloc[:len(df)-Recover, 9]
+    df.iloc[Recover1:, -1] = df.iloc[:len(df)-Recover1, 9]
     df[f'{variable2}_Recovered'] = 0
-    df.iloc[Recover:, -1] = df.iloc[:len(df)-Recover, 10]
+    df.iloc[Recover2:, -1] = df.iloc[:len(df)-Recover2, 10]
 
     df[f'{variable1}_Recovered'] = df[f'{variable1}_Recovered'] - df[f'{variable1}_Dead']
     df[f'{variable2}_Recovered'] = df[f'{variable2}_Recovered'] - df[f'{variable2}_Dead']
