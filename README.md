@@ -1,4 +1,4 @@
-# Prediction-COVID-19 (2023-02-22 ~ ing)
+# Prediction-COVID-19 (2023-02-22 ~ 2023-06-30)
 Predicting the number of COVID-19 infections.
 
 ## Description
