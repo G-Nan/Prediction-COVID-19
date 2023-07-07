@@ -20,9 +20,34 @@ Predicting the number of COVID-19 infections.
    - Predicting all target days at a time.
    - For example, if we want to predict 7 days, we predict all 7 days at once using seq2seq model with RNN, LSTM, GRU.
    
-## Data
-- **Date** : 2020.07 ~
-- **ACn** : Accumulation number of confirmed cases on day **n**
-- **DCn** : Daily number of confirmed cases on day **n** (Difference of **ACn**)
-- **DDCn** : Difference of **DCn**
-- **DDDCn** : Difference of **DDCn**
+## Datasets
+1. **COVID-19 Data**
+   - This data is provided in [Public data portal](https://www.data.go.kr/data/15098776/openapi.do) by MoHW. 
+   - This data has the number of COVID-19 cases by city.
+   - Columns
+      - **deathCnt** : Number of people who died on day <br>
+      - **defCnt** : Cumulative number of cases on day <br>
+      - **gubun** : City name in Korean <br>
+      - **gubunEn** : City name in English <br>
+      - **incDec** : Number of cases on day <br>
+      - **isolClearCnt** : Number of people who recovered on day <br>
+      - **isollngCnt** : Number of people in quarantine on day <br>
+      - **localOccCnt** : Number of cases in Korea on day <br>
+      - **overFlowCnt** : Number of cases arriving from abroad on day <br>
+      - **qurRate** : Cases per 100,000 population on day <br>
+      - **stdDay** : Date (2020.01 ~ 2023.05) <br>
+      
+3. **Variants**
+   - This data is provided in [Covariants](https://covariants.org/).
+   - This data has the stricgency index that quantifies the policy response on day.
+   - We use Alpha, Delta, Omicron(22D, 23A).
+
+4. **Stricgency**
+   - This data is provided in [Our World in Data](https://ourworldindata.org/covid-stringency-index) by 'OxCGRT'.
+   - If you want to know how it was calculated, you can go [here](https://github.com/OxCGRT/covid-policy-tracker/blob/master/documentation/index_methodology.md)
+## Processing
+1. Difference
+      > **ACn** : Accumulation number of confirmed cases on day **n** <br>
+      > **DCn** : Daily number of confirmed cases on day **n** (Difference of **ACn**) <br>
+      > **DDCn** : Difference of **DCn** <br>
+      > **DDDCn** : Difference of **DDCn** <br>   
