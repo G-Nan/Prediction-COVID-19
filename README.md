@@ -121,8 +121,6 @@ Predicting the number of COVID-19 infections.
    - We selected four policy change(two up, two down).
 
 ## Hyperparameter
-
-1. GridSearch
   - We utilized GridSearch to find the optimal parameters.
   - The candidates for the parameters we set are
       - Learning Rate : 1e-3, 1e-4, 1e-5 <br>
