@@ -261,15 +261,15 @@ def plotting(label_y, predicted, bar):
     plt.legend()
     plt.show()
    
-def criterion2(actual, predict):
+def criterion2(actual, predict, length):
     
     loss = 0
     div = 0
     
-    for i in range(7):
+    for i in range(length):
         div += (i+1)
     
-    for i in range(7):
+    for i in range(length):
         loss += sum((i+1) * (abs(actual[:, i, 0] - predict[:, i, 0])))
 
     loss /= div
@@ -277,15 +277,15 @@ def criterion2(actual, predict):
         
     return loss
 
-def criterion3(actual, predict):
+def criterion3(actual, predict, length):
     
     loss = 0
     div = 0
     
-    for i in range(7):
+    for i in range(length):
         div += (i+1)**2
     
-    for i in range(7):
+    for i in range(length):
         loss += sum(((i+1)**2) * ((actual[:, i, 0] - predict[:, i, 0])**2))
                
     loss /= div   
