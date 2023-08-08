@@ -144,7 +144,7 @@ Predicting the number of COVID-19 infections.
 |<img src="https://github.com/chdaewon.png" width="80">|<img src="https://github.com/G-Nan.png" width="80">|<img src="https://github.com/ddanggu.png" width="80">|<img src="https://github.com/Ahnjihyeok.png" width="80">|
 |:---:|:---:|:---:|:---:|
 |[chdaewon](https://github.com/chdaewon)|[G-Nan](https://github.com/G-Nan)|[ddanggu](https://github.com/ddanggu)|[akrehd2](https://github.com/Ahnjihyeok)|
-|PM, PINN|RNN, Statistics|Data Management, PINN|EDA, Visualization|
+|Project Manager / PINN|RNN / Statistics|Data Management / PINN|EDA / Visualization|
 
 
 
