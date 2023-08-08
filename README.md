@@ -140,10 +140,11 @@ Predicting the number of COVID-19 infections.
       - 4 variants : Alpha, Delta, Omicron 22D, Omicron 23A
       - 4 time period : Two periods of increased quarantine policy strength and two periods of decreased strength.
 
-   
-
-
-
+## About Us
+|<img src="https://github.com/chdaewon.png" width="80">|<img src="https://github.com/G-Nan.png" width="80">|<img src="https://github.com/ddanggu.png" width="80">|<img src="https://github.com/Ahnjihyeok.png" width="80">|
+|:---:|:---:|:---:|:---:|
+|[chdaewon](https://github.com/chdaewon)|[G-Nan](https://github.com/G-Nan)|[ddanggu](https://github.com/ddanggu)|[akrehd2](https://github.com/Ahnjihyeok)|
+|PM, PINN|RNN, Statistics|Data Management, PINN|EDA, Visualization|
 
 
 
